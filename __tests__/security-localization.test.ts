@@ -33,3 +33,4 @@ describe('Security & Localization Verification', () => {
     expect(wrongHash).not.toBe(hash);
   });
 });
+

@@ -268,3 +268,4 @@ export const bn = {
     sameAccountTransfer: 'উৎস ও গন্তব্য অ্যাকাউন্ট ভিন্ন হতে হবে।',
   },
 };
+

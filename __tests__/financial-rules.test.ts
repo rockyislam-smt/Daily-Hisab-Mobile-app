@@ -142,3 +142,4 @@ describe('Financial Calculation Rules & Business Logic Engine', () => {
     expect(budgetLimit - spentExceeded).toBe(-100000); // -৳1,000 over budget
   });
 });
+

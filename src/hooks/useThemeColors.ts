@@ -16,3 +16,4 @@ export function useThemeColors(): { colors: ThemeColors; isDark: boolean } {
   const colors = isDark ? darkTheme : lightTheme;
   return { colors, isDark };
 }
+

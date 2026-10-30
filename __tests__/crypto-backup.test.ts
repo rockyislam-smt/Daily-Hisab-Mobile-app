@@ -48,3 +48,4 @@ describe('Offline Encrypted Backup & Security Utilities', () => {
     }).toThrow('Password cannot be empty');
   });
 });
+

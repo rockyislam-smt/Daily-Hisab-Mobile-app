@@ -124,3 +124,4 @@ export function formatAmountInput(val: string): string {
   }
   return sanitized;
 }
+

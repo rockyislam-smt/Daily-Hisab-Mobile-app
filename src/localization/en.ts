@@ -268,3 +268,4 @@ export const en = {
     sameAccountTransfer: 'Source and destination accounts must be different.',
   },
 };
+

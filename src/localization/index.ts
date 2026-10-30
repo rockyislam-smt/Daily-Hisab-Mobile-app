@@ -12,3 +12,4 @@ export function translate(lang: Language, key: TranslationKey): any {
 }
 
 export { en, bn };
+

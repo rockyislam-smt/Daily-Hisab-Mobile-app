@@ -52,3 +52,4 @@ describe('Financial Money Arithmetic & Zero-Floating-Point Precision', () => {
     expect(getCurrencySymbol('INR')).toBe('₹');
   });
 });
+

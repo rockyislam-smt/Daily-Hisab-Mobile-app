@@ -262,3 +262,4 @@ export const SCHEMA_STATEMENTS = [
   `CREATE INDEX IF NOT EXISTS idx_debts_status ON debts(status);`,
   `CREATE INDEX IF NOT EXISTS idx_recurring_next ON recurring_transactions(next_occurrence);`,
 ];
+

@@ -89,3 +89,4 @@ export const DEFAULT_CURRENCY_RATES = [
   { currency_code: 'GBP', name: 'British Pound', symbol: '£', rate_to_base: 155.0 },
   { currency_code: 'INR', name: 'Indian Rupee', symbol: '₹', rate_to_base: 1.45 },
 ];
+

@@ -40,3 +40,4 @@ export function decryptData(cipherText: string, pass: string): string {
 export function isEncryptedBackup(content: string): boolean {
   return content.trim().startsWith(BACKUP_PREFIX);
 }
+
