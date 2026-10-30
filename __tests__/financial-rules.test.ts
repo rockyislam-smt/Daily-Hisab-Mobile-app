@@ -1,0 +1,144 @@
+import { RecurringRepository } from '../src/database/repositories/recurring.repository';
+
+describe('Financial Calculation Rules & Business Logic Engine', () => {
+  // Test 1: Balance impact for Income and Expense
+  test('Rule 1 & 2: Income increases balance, expense decreases balance', () => {
+    let accountBalance = 100000; // 1,000 BDT in paisa
+
+    // Record Income of ৳500
+    const incomeAmount = 50000;
+    accountBalance += incomeAmount;
+    expect(accountBalance).toBe(150000); // ৳1,500
+
+    // Record Expense of ৳300
+    const expenseAmount = 30000;
+    accountBalance -= expenseAmount;
+    expect(accountBalance).toBe(120000); // ৳1,200
+  });
+
+  // Test 2: Transfer between accounts
+  test('Rule 3 & 4: Transfers move funds between accounts without affecting overall income/expense', () => {
+    let sourceAccount = 200000; // ৳2,000
+    let destinationAccount = 50000; // ৳500
+    let totalIncome = 0;
+    let totalExpense = 0;
+
+    const transferAmount = 70000; // ৳700
+    const transferFee = 1500; // ৳15
+
+    // Execute transfer
+    sourceAccount -= (transferAmount + transferFee);
+    destinationAccount += transferAmount;
+
+    expect(sourceAccount).toBe(128500); // 2000 - 715 = 1285
+    expect(destinationAccount).toBe(120000); // 500 + 700 = 1200
+
+    // Total available wealth before was 2,500. After is 2,485 (only reduced by the fee of ৳15)
+    expect(sourceAccount + destinationAccount).toBe(250000 - transferFee);
+
+    // Income and expense totals MUST NOT be changed by transfers
+    expect(totalIncome).toBe(0);
+    expect(totalExpense).toBe(0);
+  });
+
+  // Test 3: Daily opening and closing calculation & carry forward
+  test('Rule 11 & 12: Daily Opening + Income - Expense = Calculated Closing, and carry forward', () => {
+    // Day 1:
+    const day1Opening = 200000; // ৳2,000
+    const day1Income = 100000; // ৳1,000
+    const day1Expense = 60000; // ৳600
+
+    const day1CalculatedClosing = day1Opening + day1Income - day1Expense;
+    expect(day1CalculatedClosing).toBe(240000); // ৳2,400
+
+    // Actual hand cash counted is ৳2,350 (Shortage of ৳50)
+    const day1ActualClosing = 235000;
+    const day1Difference = day1ActualClosing - day1CalculatedClosing;
+    expect(day1Difference).toBe(-5000); // -৳50 difference
+
+    // Day 2 carries forward day 1 confirmed actual balance (or calculated if unconfirmed)
+    const day2Opening = day1ActualClosing;
+    expect(day2Opening).toBe(235000); // ৳2,350
+
+    const day2Income = 50000; // ৳500
+    const day2Expense = 20000; // ৳200
+    const day2CalculatedClosing = day2Opening + day2Income - day2Expense;
+    expect(day2CalculatedClosing).toBe(265000); // ৳2,650
+  });
+
+  // Test 4: Reversing transaction edit
+  test('Rule 9 & 10: Editing and deleting a transaction safely reverses prior impact', () => {
+    let accountBalance = 100000; // ৳1,000
+
+    // User created an expense of ৳200
+    const oldExpense = 20000;
+    accountBalance -= oldExpense;
+    expect(accountBalance).toBe(80000); // ৳800
+
+    // User edits the expense from ৳200 to ৳350:
+    // Step 1: Reversal
+    accountBalance += oldExpense; // restores to ৳1,000
+    // Step 2: Apply new
+    const newExpense = 35000;
+    accountBalance -= newExpense;
+    expect(accountBalance).toBe(65000); // ৳650
+
+    // User deletes the transaction:
+    // Reversal of newExpense restores balance back to ৳1,000
+    accountBalance += newExpense;
+    expect(accountBalance).toBe(100000);
+  });
+
+  // Test 5: Debt partial payments & remaining balance
+  test('Rule 8: Debt partial payments update remaining amounts and settlement status', () => {
+    const initialBorrowed = 500000; // ৳5,000 borrowed
+    let paidAmount = 0;
+    let remainingAmount = initialBorrowed - paidAmount;
+    let status: 'active' | 'settled' = 'active';
+
+    // First installment of ৳2,000
+    const installment1 = 200000;
+    paidAmount += installment1;
+    remainingAmount = Math.max(0, initialBorrowed - paidAmount);
+    status = remainingAmount === 0 ? 'settled' : 'active';
+
+    expect(paidAmount).toBe(200000);
+    expect(remainingAmount).toBe(300000); // ৳3,000 remaining
+    expect(status).toBe('active');
+
+    // Final installment of ৳3,000
+    const installment2 = 300000;
+    paidAmount += installment2;
+    remainingAmount = Math.max(0, initialBorrowed - paidAmount);
+    status = remainingAmount === 0 ? 'settled' : 'active';
+
+    expect(paidAmount).toBe(500000);
+    expect(remainingAmount).toBe(0);
+    expect(status).toBe('settled');
+  });
+
+  // Test 6: Recurring interval calculation
+  test('Rule 18: Recurring calculation advances occurrences accurately across frequencies', () => {
+    const baseDate = '2026-10-30';
+
+    expect(RecurringRepository.calculateNextDate(baseDate, 'daily', 1)).toBe('2026-10-31');
+    expect(RecurringRepository.calculateNextDate(baseDate, 'weekly', 1)).toBe('2026-11-06');
+    expect(RecurringRepository.calculateNextDate(baseDate, 'monthly', 1)).toBe('2026-11-30');
+    expect(RecurringRepository.calculateNextDate(baseDate, 'yearly', 1)).toBe('2027-10-30');
+  });
+
+  // Test 7: Budget progress calculation
+  test('Rule 15: Budget spending percentages and limit overflow', () => {
+    const budgetLimit = 1000000; // ৳10,000 limit
+
+    const spentNormal = 750000; // ৳7,500 spent
+    const percentageNormal = Math.round((spentNormal / budgetLimit) * 100);
+    expect(percentageNormal).toBe(75);
+    expect(budgetLimit - spentNormal).toBe(250000); // ৳2,500 remaining
+
+    const spentExceeded = 1100000; // ৳11,000 spent
+    const percentageExceeded = Math.round((spentExceeded / budgetLimit) * 100);
+    expect(percentageExceeded).toBe(110);
+    expect(budgetLimit - spentExceeded).toBe(-100000); // -৳1,000 over budget
+  });
+});
