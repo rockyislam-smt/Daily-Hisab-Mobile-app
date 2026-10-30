@@ -247,6 +247,8 @@ export const bn = {
   resetWarning: 'এর ফলে আপনার সকল হিসাব চিরতরে মুছে যাবে এবং তা আর পুনরুদ্ধার করা সম্ভব হবে না!',
   appVersion: 'অ্যাপ ভার্সন',
   offlineNotice: 'পকেটফ্লো সম্পূর্ণ অফলাইন অ্যাপ। আপনার কোনো তথ্য কখনো ডিভাইস থেকে বাইরে যায় না।',
+  developedBy: 'Developed by Md Rocky Islam (মোঃ রকি ইসলাম)',
+  calculator: 'ক্যালকুলেটর',
 
   // Onboarding
   welcomeTitle: 'পকেটফ্লো-তে স্বাগতম',

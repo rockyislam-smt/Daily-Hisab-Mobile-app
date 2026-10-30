@@ -401,6 +401,9 @@ export default function SettingsScreen() {
 
         {/* Offline notice and App Version */}
         <View style={styles.footerNotice}>
+          <Text style={[styles.developerCredit, { color: colors.primary }]}>
+            {t('developedBy')}
+          </Text>
           <Text style={[styles.offlineText, { color: colors.textMuted }]}>{t('offlineNotice')}</Text>
           <Text style={[styles.versionText, { color: colors.textMuted }]}>
             PocketFlow v1.0.0 (Production Release)
@@ -609,6 +612,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 28,
     marginBottom: 10,
+  },
+  developerCredit: {
+    fontSize: 14,
+    fontWeight: '700',
+    marginBottom: 6,
+    textAlign: 'center',
   },
   offlineText: {
     fontSize: 12,

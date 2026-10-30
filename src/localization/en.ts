@@ -247,6 +247,8 @@ export const en = {
   resetWarning: 'This will permanently erase all local financial records and cannot be undone!',
   appVersion: 'App Version',
   offlineNotice: 'PocketFlow is 100% offline. No data ever leaves your device.',
+  developedBy: 'Developed by Md Rocky Islam',
+  calculator: 'Calculator',
 
   // Onboarding
   welcomeTitle: 'Welcome to PocketFlow',

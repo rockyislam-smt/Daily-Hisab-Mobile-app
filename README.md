@@ -46,6 +46,16 @@ Designed for complete user privacy and autonomy, PocketFlow operates entirely on
 | 21 | **Encrypted Backup & Restore** | ✅ Complete | Password-protected AES encrypted backup files (`.pfenc`), standard JSON exports, and safety snapshots before restore. |
 | 22 | **CSV & PDF Export** | ✅ Complete | Export complete transaction ledger to CSV and print/share formatted financial summary reports as PDF. |
 | 23 | **Theme System** | ✅ Complete | Emerald Green primary fintech palette with Dark Navy secondary, supporting Light Mode, Dark Mode, and System Default. |
+| 24 | **Interactive Calculator** | ✅ Complete | Built-in smart calculator on the transaction amount input with live calculation preview, math operator buttons (+, -, ×, ÷, brackets), and one-tap insert. |
+
+---
+
+## 👨‍💻 Author & Lead Architect
+
+**PocketFlow** was architected and developed by:
+- **Md Rocky Islam** — *Lead Mobile & Fintech Engineer*
+- **Role:** Full App Architecture, Database Design, Mobile UI/UX & Security Engineering
+- **Production Attribution:** Displayed in the app settings footer, onboarding screens, and build metadata.
 
 ---
 

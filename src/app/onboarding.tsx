@@ -47,6 +47,7 @@ export default function OnboardingScreen() {
         </View>
         <Text style={[styles.appName, { color: colors.text }]}>{t('welcomeTitle')}</Text>
         <Text style={[styles.tagline, { color: colors.textSecondary }]}>{t('welcomeSub')}</Text>
+        <Text style={[styles.developerBadge, { color: colors.primary }]}>{t('developedBy')}</Text>
       </View>
 
       {/* Feature Highlights */}
@@ -109,6 +110,15 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     marginTop: 8,
     maxWidth: 300,
+  },
+  developerBadge: {
+    fontSize: 13,
+    fontWeight: '700',
+    marginTop: 10,
+    textAlign: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 8,
   },
   featuresSection: {
     gap: 24,
