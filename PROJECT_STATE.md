@@ -64,6 +64,9 @@ PocketFlow is a production-grade, 100% offline-first personal finance management
 3. **TypeScript & IDE Fix**:
    - Added `"jsx": "react-jsx"` to `tsconfig.json` compilerOptions to eliminate `Cannot use JSX unless the '--jsx' flag is provided` in editors.
    - Created `expo-env.d.ts` reference file.
+4. **Form Input Auto-Reset Fix**:
+   - Implemented `resetForm()` and `useFocusEffect` across `src/app/(tabs)/add.tsx` and all modal managers (`savings-manager`, `debts-manager`, `accounts-manager`, `settings`).
+   - All input fields (amount, description/title, notes, payment method, calculator display) now automatically clear to clean empty state immediately upon saving or re-opening.
 
 ---
 
