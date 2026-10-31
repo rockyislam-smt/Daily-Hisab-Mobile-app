@@ -141,5 +141,36 @@ describe('Financial Calculation Rules & Business Logic Engine', () => {
     expect(percentageExceeded).toBe(110);
     expect(budgetLimit - spentExceeded).toBe(-100000); // -৳1,000 over budget
   });
+
+  // Test 8: Net Debt, Receivable, and Overdue calculations
+  test('Rule 8b: Net Debt calculation correctly determines overall lending position and overdue alerts', () => {
+    const loans = [
+      { type: 'they_owe_me', remaining: 150000, due_date: '2026-10-25' }, // ৳1,500 (Overdue)
+      { type: 'they_owe_me', remaining: 250000, due_date: '2026-11-15' }, // ৳2,500 (Future)
+      { type: 'i_owe', remaining: 100000, due_date: '2026-11-10' },       // ৳1,000 (To pay)
+    ];
+
+    const today = '2026-10-31';
+    let totalTheyOweMe = 0;
+    let totalIOwe = 0;
+    let overdueCount = 0;
+
+    for (const item of loans) {
+      if (item.type === 'they_owe_me') {
+        totalTheyOweMe += item.remaining;
+      } else {
+        totalIOwe += item.remaining;
+      }
+      if (item.due_date && item.due_date < today) {
+        overdueCount++;
+      }
+    }
+
+    const netBalance = totalTheyOweMe - totalIOwe;
+    expect(totalTheyOweMe).toBe(400000); // ৳4,000 total to receive
+    expect(totalIOwe).toBe(100000);       // ৳1,000 total to pay
+    expect(netBalance).toBe(300000);      // +৳3,000 net in favor of user
+    expect(overdueCount).toBe(1);         // 1 loan is overdue
+  });
 });
 

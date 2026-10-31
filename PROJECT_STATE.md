@@ -67,6 +67,13 @@ PocketFlow is a production-grade, 100% offline-first personal finance management
 4. **Form Input Auto-Reset Fix**:
    - Implemented `resetForm()` and `useFocusEffect` across `src/app/(tabs)/add.tsx` and all modal managers (`savings-manager`, `debts-manager`, `accounts-manager`, `settings`).
    - All input fields (amount, description/title, notes, payment method, calculator display) now automatically clear to clean empty state immediately upon saving or re-opening.
+5. **Advanced Debt & Lending Management with Alarm Reminders**:
+   - **Net Summary Widget:** Instant 3-card overview showing Total Receivable (পাওনা), Total Payable (দেনা), and Net Position (নেট বাকি).
+   - **Audible / Alarm Reminders:** High-priority Android notification channel (`debt_alarms`) with sound, vibration, and scheduling for 09:00 AM on due dates via `NotificationService.scheduleDebtAlarm()`.
+   - **One-Tap Alarm Toggle:** Bell icon button (🔔) on each card to schedule or cancel due date reminders with instant feedback.
+   - **Quick Actions:** Direct Call (📞) and pre-filled Bengali SMS Tagada (✉️) buttons to follow up with debtors in seconds.
+   - **Repayment History Ledger:** Modal displaying past installment dates, accounts, and partial payment amounts.
+   - **Due Date Presets:** Quick `+7 দিন`, `+15 দিন`, `+1 মাস`, `+2 মাস` date selection buttons.
 
 ---
 

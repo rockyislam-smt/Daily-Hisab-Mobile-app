@@ -182,6 +182,48 @@ export class DebtRepository {
     );
   }
 
+  static async getDebtSummary(): Promise<{
+    totalIOwe: number;
+    totalTheyOweMe: number;
+    netBalance: number;
+    activeCount: number;
+    overdueCount: number;
+  }> {
+    const db = getDb();
+    const debts = await db.getAllAsync<{ type: DebtType; remaining_amount: number; status: string; due_date: string | null }>(
+      `SELECT type, remaining_amount, status, due_date FROM debts WHERE status != 'cancelled';`
+    );
+
+    let totalIOwe = 0;
+    let totalTheyOweMe = 0;
+    let activeCount = 0;
+    let overdueCount = 0;
+    const today = getTodayDateString();
+
+    for (const d of debts) {
+      if (d.status === 'active' && d.remaining_amount > 0) {
+        activeCount++;
+        if (d.type === 'i_owe') {
+          totalIOwe += d.remaining_amount;
+        } else {
+          totalTheyOweMe += d.remaining_amount;
+        }
+
+        if (d.due_date && d.due_date < today) {
+          overdueCount++;
+        }
+      }
+    }
+
+    return {
+      totalIOwe,
+      totalTheyOweMe,
+      netBalance: totalTheyOweMe - totalIOwe,
+      activeCount,
+      overdueCount,
+    };
+  }
+
   static async delete(id: string): Promise<boolean> {
     const db = getDb();
     await db.runAsync('DELETE FROM debts WHERE id = ?;', [id]);
