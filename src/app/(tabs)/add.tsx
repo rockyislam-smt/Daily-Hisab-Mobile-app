@@ -10,7 +10,7 @@ import {
   Alert,
   Platform,
 } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useRouter, useLocalSearchParams, useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useThemeColors } from '../../hooks/useThemeColors';
 import { useAppStore } from '../../store/useAppStore';
@@ -53,17 +53,35 @@ export default function AddTransactionScreen() {
   const [isEditing, setIsEditing] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
 
+  const resetForm = () => {
+    setAmountStr('');
+    setTitle('');
+    setNotes('');
+    setDateStr(getTodayDateString());
+    setTimeStr(getCurrentTimeString());
+    setPaymentMethod('');
+    setTransferFeeStr('0');
+    setIsEditing(false);
+    setEditingId(null);
+  };
+
   useEffect(() => {
     loadAccountsAndCategories();
   }, [txType]);
 
-  useEffect(() => {
-    if (params.editId) {
-      loadExistingTransaction(params.editId);
-    } else if (params.type && (params.type === 'income' || params.type === 'expense' || params.type === 'transfer')) {
-      setTxType(params.type as TransactionType);
-    }
-  }, [params.editId, params.type]);
+  useFocusEffect(
+    React.useCallback(() => {
+      if (params.editId) {
+        loadExistingTransaction(params.editId);
+      } else {
+        // Clean all input fields whenever opening afresh
+        resetForm();
+        if (params.type && (params.type === 'income' || params.type === 'expense' || params.type === 'transfer')) {
+          setTxType(params.type as TransactionType);
+        }
+      }
+    }, [params.editId, params.type])
+  );
 
   const loadAccountsAndCategories = async () => {
     try {
@@ -176,6 +194,8 @@ export default function AddTransactionScreen() {
         });
       }
 
+      // Clean up all input values immediately
+      resetForm();
       triggerRefresh();
 
       if (router.canGoBack()) {
@@ -201,6 +221,7 @@ export default function AddTransactionScreen() {
           style: 'destructive',
           onPress: async () => {
             await TransactionRepository.delete(editingId);
+            resetForm();
             triggerRefresh();
             if (router.canGoBack()) {
               router.back();

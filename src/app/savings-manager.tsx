@@ -125,6 +125,8 @@ export default function SavingsManagerScreen() {
       );
 
       setContribModalVisible(false);
+      setContribAmountStr('');
+      setContribNotes('');
       triggerRefresh();
       await loadData();
       Alert.alert('Success', `${contribType === 'deposit' ? 'Deposit' : 'Withdrawal'} completed.`);

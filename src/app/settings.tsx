@@ -120,6 +120,8 @@ export default function SettingsScreen() {
       await SecurityService.setLockCredentials('pin', pinInput, true);
       await checkLockStatus();
       setPinModalVisible(false);
+      setPinInput('');
+      setConfirmPinInput('');
       Alert.alert('Success', 'App Lock PIN successfully configured!');
     } catch (e: any) {
       Alert.alert('Error', e.message || 'Could not set PIN');

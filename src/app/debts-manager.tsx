@@ -135,6 +135,8 @@ export default function DebtsManagerScreen() {
       );
 
       setPaymentModalVisible(false);
+      setPaymentAmountStr('');
+      setPaymentNotes('');
       triggerRefresh();
       await loadData();
       Alert.alert('Payment Recorded', 'Payment has been recorded and wallet updated.');

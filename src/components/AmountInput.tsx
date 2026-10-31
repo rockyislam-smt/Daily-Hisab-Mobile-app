@@ -28,6 +28,13 @@ export const AmountInput: React.FC<AmountInputProps> = ({
   const [calcExpression, setCalcExpression] = useState('');
   const [calcPreview, setCalcPreview] = useState<number | null>(null);
 
+  React.useEffect(() => {
+    if (!value || value === '' || value === '0') {
+      setCalcExpression('');
+      setCalcPreview(null);
+    }
+  }, [value]);
+
   const shortcuts = [50, 100, 200, 500, 1000];
 
   const handleShortcutPress = (val: number) => {

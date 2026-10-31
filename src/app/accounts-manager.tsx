@@ -110,6 +110,10 @@ export default function AccountsManagerScreen() {
       }
 
       setModalVisible(false);
+      setName('');
+      setOpeningBalanceStr('0');
+      setDescription('');
+      setEditingAccount(null);
       triggerRefresh();
       await loadAccounts();
     } catch (err: any) {
