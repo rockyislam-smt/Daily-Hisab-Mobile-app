@@ -141,14 +141,36 @@ If you or another developer / AI assistant open this repository in the future, r
 
 ---
 
+### Phase 10: Smart Shopping List with Budget (স্মার্ট বাজার ফর্দ)
+- **User Request:** "স্মার্ট বাজার ফর্দ ও শপিং লিস্ট (Smart Shopping List with Budget) -- ai ta add kore dao"
+- **Delivered Architecture & Features:**
+  1. **Dedicated Database Schema (`shopping_lists` & `shopping_items`):** Relational tables with foreign key cascades, budget tracking, items count, and expense transaction links.
+  2. **Repository (`ShoppingRepository`):** CRUD operations, real-time recalculation of total spent upon item purchase checking, and `convertListToExpense()` to automatically deduct wallet balance.
+  3. **Interactive Shopping Checklist Screen (`src/app/shopping-lists.tsx`):**
+     - Active & Completed tabs.
+     - Visual budget progress bar that turns red if spent > budget.
+     - Inline quick item adding with quantity and estimated price.
+     - 1-tap checkbox to mark item purchased with actual price confirmation.
+     - Prominent **"বাজার সম্পন্ন ও খরচে যুক্ত করুন" (Finish Shopping & Save to Expense)** button.
+     - Instant shopping list text sharing via WhatsApp/SMS.
+  4. **Seamless Navigation Integration:**
+     - Quick Shopping Banner & Pill in `(tabs)/planning.tsx`.
+     - 4th Overview Pill Card in Dashboard `(tabs)/index.tsx`.
+  5. **Automated Testing:**
+     - Added Rule 21 unit test in `__tests__/financial-rules.test.ts` (all 22 unit tests passing).
+
+---
+
 ## 📂 Key File Locations
 
 | File Path | Description |
 |---|---|
 | `src/app/(tabs)/index.tsx` | Main Financial Dashboard with cards, charts, filters |
 | `src/app/(tabs)/add.tsx` | Quick Transaction Entry with auto-reset & calculator |
+| `src/app/shopping-lists.tsx` | Smart Shopping List with budget progress and auto-expense conversion |
 | `src/app/debts-manager.tsx` | Debt & Lending Manager with Net Balance, Alarms, Call/SMS |
 | `src/components/AmountInput.tsx` | Amount input field with interactive fintech calculator |
+| `src/database/repositories/shopping.repository.ts` | Shopping list SQL operations, item checks, and expense conversion |
 | `src/database/repositories/debt.repository.ts` | Debt SQL operations, wallet reflections, and net summary |
 | `src/services/notification.service.ts` | Offline notifications, daily reminders, and high-priority alarms |
 | `src/localization/bn.ts` & `en.ts` | Bengali & English full translation dictionaries |

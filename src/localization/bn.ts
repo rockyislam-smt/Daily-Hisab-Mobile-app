@@ -201,6 +201,27 @@ export const bn = {
   monthly: 'প্রতি মাসে',
   yearly: 'প্রতি বছর',
 
+  // Smart Shopping Lists
+  shoppingLists: 'স্মার্ট বাজার ফর্দ',
+  shoppingSubtitle: 'বাজেট অনুযায়ী বাজার ফর্দ ও স্বয়ংক্রিয় খরচ ট্র্যাকিং',
+  createShoppingList: 'নতুন বাজার ফর্দ তৈরি',
+  listTitle: 'ফর্দের নাম',
+  allocatedBudget: 'বাজারের বাজেট',
+  spentSoFar: 'এ পর্যন্ত খরচ',
+  addItem: 'আইটেম যোগ করুন',
+  itemName: 'পণ্যের নাম',
+  quantity: 'পরিমাণ / একক',
+  estimatedPrice: 'আনুমানিক দাম',
+  actualPrice: 'কেনা দাম',
+  finishAndAddToExpense: 'বাজার সম্পন্ন ও খরচে যুক্ত করুন',
+  shoppingCompleted: 'বাজার সম্পন্ন ও খরচ যুক্ত হয়েছে 🎉',
+  allItemsPurchased: 'সব পণ্য কেনা সম্পন্ন!',
+  underBudget: 'বাজেটের মধ্যে',
+  overBudget: 'বাজেট অতিক্রম',
+  items: 'টি আইটেম',
+  purchased: 'কেনা হয়েছে',
+  shoppingExpenseRecorded: 'আপনার অ্যাকাউন্টে বাজার খরচ যুক্ত করা হয়েছে!',
+
   // Calendar
   financialCalendar: 'আর্থিক ক্যালেন্ডার',
   calendarDesc: 'যেকোনো তারিখ নির্বাচন করে সেদিনের লেনদেন দেখুন ও নতুন হিসাব যোগ করুন।',

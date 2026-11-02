@@ -253,6 +253,15 @@ export default function DashboardScreen() {
             <Text style={[styles.pillLabel, { color: colors.textSecondary }]}>{t('upcomingExpenses')}</Text>
             <Text style={[styles.pillValue, { color: colors.warning }]}>{renderAmount(upcomingExpensesTotal)}</Text>
           </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.pillCard, { backgroundColor: colors.card, borderColor: colors.borderSubtle }]}
+            onPress={() => router.push('/shopping-lists')}
+          >
+            <Ionicons name="cart" size={16} color={colors.primary} />
+            <Text style={[styles.pillLabel, { color: colors.textSecondary }]}>{t('shoppingLists')}</Text>
+            <Text style={[styles.pillValue, { color: colors.primary }]}>{language === 'bn' ? 'বাজার ফর্দ' : 'Smart List'}</Text>
+          </TouchableOpacity>
         </View>
 
         {/* Recent Transactions Section */}

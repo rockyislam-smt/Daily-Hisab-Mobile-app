@@ -94,6 +94,7 @@ export default function PlanningScreen() {
       >
         {[
           { key: 'budgets', label: t('budgets'), icon: 'pie-chart-outline' },
+          { key: 'shopping', label: t('shoppingLists'), icon: 'cart-outline' },
           { key: 'planned', label: t('plannedExpenses'), icon: 'calendar-number-outline' },
           { key: 'savings', label: t('savingsGoals'), icon: 'sparkles-outline' },
           { key: 'debts', label: t('debtAndLending'), icon: 'people-outline' },
@@ -110,7 +111,13 @@ export default function PlanningScreen() {
                   borderColor: isSelected ? colors.primary : colors.border,
                 },
               ]}
-              onPress={() => setActiveTab(tab.key as any)}
+              onPress={() => {
+                if (tab.key === 'shopping') {
+                  router.push('/shopping-lists');
+                } else {
+                  setActiveTab(tab.key as any);
+                }
+              }}
             >
               <Ionicons
                 name={tab.icon as any}
@@ -135,6 +142,24 @@ export default function PlanningScreen() {
         contentContainerStyle={styles.scrollContent}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.primary} />}
       >
+        {/* Smart Shopping List Quick Banner */}
+        <TouchableOpacity
+          style={[styles.shoppingBanner, { backgroundColor: colors.card, borderColor: colors.borderSubtle }]}
+          onPress={() => router.push('/shopping-lists')}
+          activeOpacity={0.8}
+        >
+          <View style={[styles.shoppingIconCircle, { backgroundColor: `${colors.primary}20` }]}>
+            <Ionicons name="cart" size={20} color={colors.primary} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.shoppingBannerTitle, { color: colors.text }]}>{t('shoppingLists')}</Text>
+            <Text style={[styles.shoppingBannerSub, { color: colors.textSecondary }]}>
+              {t('shoppingSubtitle')}
+            </Text>
+          </View>
+          <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
+        </TouchableOpacity>
+
         {/* ==================== 1. BUDGETS TAB ==================== */}
         {activeTab === 'budgets' && (
           <View>
@@ -603,6 +628,30 @@ const styles = StyleSheet.create({
   statusBadgeText: {
     fontSize: 10,
     fontWeight: '700',
+  },
+  shoppingBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 12,
+    borderRadius: 16,
+    borderWidth: 1,
+    marginBottom: 12,
+    gap: 12,
+  },
+  shoppingIconCircle: {
+    width: 42,
+    height: 42,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  shoppingBannerTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  shoppingBannerSub: {
+    fontSize: 11,
+    marginTop: 2,
   },
 });
 

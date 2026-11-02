@@ -141,6 +141,8 @@ export async function resetDatabase(): Promise<void> {
       DELETE FROM debts;
       DELETE FROM savings_contributions;
       DELETE FROM savings_goals;
+      DELETE FROM shopping_items;
+      DELETE FROM shopping_lists;
       DELETE FROM planned_expenses;
       DELETE FROM expected_income;
       DELETE FROM budgets;

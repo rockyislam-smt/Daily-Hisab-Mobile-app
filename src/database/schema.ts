@@ -250,6 +250,38 @@ export const SCHEMA_STATEMENTS = [
     updated_at TEXT NOT NULL
   );`,
 
+  // Smart Shopping Lists
+  `CREATE TABLE IF NOT EXISTS shopping_lists (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    budget_amount INTEGER NOT NULL DEFAULT 0,
+    total_spent INTEGER NOT NULL DEFAULT 0,
+    account_id TEXT,
+    category_id TEXT,
+    target_date TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'active',
+    transaction_id TEXT,
+    notes TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    FOREIGN KEY (account_id) REFERENCES accounts(id),
+    FOREIGN KEY (category_id) REFERENCES categories(id)
+  );`,
+
+  // Shopping List Items
+  `CREATE TABLE IF NOT EXISTS shopping_items (
+    id TEXT PRIMARY KEY,
+    list_id TEXT NOT NULL,
+    item_name TEXT NOT NULL,
+    quantity TEXT,
+    estimated_amount INTEGER NOT NULL DEFAULT 0,
+    actual_amount INTEGER NOT NULL DEFAULT 0,
+    is_purchased INTEGER NOT NULL DEFAULT 0,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    FOREIGN KEY (list_id) REFERENCES shopping_lists(id) ON DELETE CASCADE
+  );`,
+
   // Indexes
   `CREATE INDEX IF NOT EXISTS idx_transactions_date ON transactions(date);`,
   `CREATE INDEX IF NOT EXISTS idx_transactions_account ON transactions(account_id);`,
@@ -261,5 +293,7 @@ export const SCHEMA_STATEMENTS = [
   `CREATE INDEX IF NOT EXISTS idx_expected_due ON expected_income(due_date);`,
   `CREATE INDEX IF NOT EXISTS idx_debts_status ON debts(status);`,
   `CREATE INDEX IF NOT EXISTS idx_recurring_next ON recurring_transactions(next_occurrence);`,
+  `CREATE INDEX IF NOT EXISTS idx_shopping_lists_status ON shopping_lists(status);`,
+  `CREATE INDEX IF NOT EXISTS idx_shopping_items_list ON shopping_items(list_id);`,
 ];
 

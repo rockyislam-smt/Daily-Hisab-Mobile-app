@@ -260,6 +260,38 @@ export interface CurrencyRate {
   updated_at: string;
 }
 
+export interface ShoppingList {
+  id: string;
+  title: string;
+  budget_amount: number; // in paisa
+  total_spent: number;   // in paisa
+  account_id?: string | null;
+  account_name?: string;
+  category_id?: string | null;
+  category_name?: string;
+  target_date: string;   // YYYY-MM-DD
+  status: 'active' | 'completed' | 'cancelled';
+  transaction_id?: string | null;
+  notes?: string | null;
+  items_count?: number;
+  purchased_count?: number;
+  items?: ShoppingItem[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ShoppingItem {
+  id: string;
+  list_id: string;
+  item_name: string;
+  quantity?: string | null;
+  estimated_amount: number; // in paisa
+  actual_amount: number;    // in paisa
+  is_purchased: number;     // 0 or 1
+  created_at: string;
+  updated_at: string;
+}
+
 export interface AppSettings {
   language: 'en' | 'bn';
   base_currency: string;

@@ -201,6 +201,27 @@ export const en = {
   monthly: 'Monthly',
   yearly: 'Yearly',
 
+  // Smart Shopping Lists
+  shoppingLists: 'Smart Shopping List',
+  shoppingSubtitle: 'List items with budget & auto-expense tracking',
+  createShoppingList: 'New Shopping List',
+  listTitle: 'List Title',
+  allocatedBudget: 'Allocated Budget',
+  spentSoFar: 'Spent so far',
+  addItem: 'Add Item',
+  itemName: 'Item Name',
+  quantity: 'Quantity / Unit',
+  estimatedPrice: 'Estimated Price',
+  actualPrice: 'Actual Price',
+  finishAndAddToExpense: 'Finish Shopping & Save to Expenses',
+  shoppingCompleted: 'Shopping Completed 🎉',
+  allItemsPurchased: 'All items purchased!',
+  underBudget: 'Under Budget',
+  overBudget: 'Over Budget',
+  items: 'items',
+  purchased: 'Purchased',
+  shoppingExpenseRecorded: 'Shopping expense recorded to your account wallet!',
+
   // Calendar
   financialCalendar: 'Financial Calendar',
   calendarDesc: 'Select any date to view and record income, expenses, and upcoming dues.',

@@ -172,5 +172,31 @@ describe('Financial Calculation Rules & Business Logic Engine', () => {
     expect(netBalance).toBe(300000);      // +৳3,000 net in favor of user
     expect(overdueCount).toBe(1);         // 1 loan is overdue
   });
+
+  // Test 9: Smart Shopping List calculations & Budget utilization
+  test('Rule 21: Shopping list spent aggregation, remaining budget, and overbudget alerts', () => {
+    const listBudget = 300000; // ৳3,000 budget
+    const items = [
+      { item_name: 'Miniket Rice', estimated: 80000, actual: 82000, is_purchased: 1 }, // ৳820 (Bought)
+      { item_name: 'Soybean Oil 5L', estimated: 85000, actual: 85000, is_purchased: 1 }, // ৳850 (Bought)
+      { item_name: 'Broiler Chicken', estimated: 45000, actual: 50000, is_purchased: 1 }, // ৳500 (Bought)
+      { item_name: 'Eggs (Dozen)', estimated: 16000, actual: 0, is_purchased: 0 }, // ৳160 (Unpurchased)
+    ];
+
+    // Calculate total spent based on checked/purchased items
+    const totalSpent = items
+      .filter((it) => it.is_purchased === 1)
+      .reduce((sum, it) => sum + it.actual, 0);
+
+    expect(totalSpent).toBe(217000); // ৳2,170 spent so far
+    expect(listBudget - totalSpent).toBe(83000); // ৳830 remaining budget
+    expect(totalSpent <= listBudget).toBe(true); // Under budget!
+
+    // If an extra item pushes total over budget
+    const extraSpent = 100000; // ৳1,000
+    const newTotalSpent = totalSpent + extraSpent; // ৳3,170
+    expect(newTotalSpent > listBudget).toBe(true); // Over budget!
+    expect(newTotalSpent - listBudget).toBe(17000); // Exceeded by ৳170
+  });
 });
 

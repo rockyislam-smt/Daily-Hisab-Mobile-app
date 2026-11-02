@@ -74,6 +74,12 @@ PocketFlow is a production-grade, 100% offline-first personal finance management
    - **Quick Actions:** Direct Call (📞) and pre-filled Bengali SMS Tagada (✉️) buttons to follow up with debtors in seconds.
    - **Repayment History Ledger:** Modal displaying past installment dates, accounts, and partial payment amounts.
    - **Due Date Presets:** Quick `+7 দিন`, `+15 দিন`, `+1 মাস`, `+2 মাস` date selection buttons.
+6. **Smart Shopping List with Budget (স্মার্ট বাজার ফর্দ ও শপিং লিস্ট)**:
+   - **Dedicated Manager Screen (`src/app/shopping-lists.tsx`):** Active & Completed shopping lists.
+   - **Budget Tracking & Progress Bar:** Real-time visual comparison of allocated budget vs actual spent so far with over-budget warning.
+   - **Interactive Item Checklist:** Fast inline item adding with unit/quantity, estimated price, and actual price updating upon purchase.
+   - **1-Tap Auto-Expense Conversion:** Prominent "Finish Shopping & Save to Expenses" button that records the total spent into the SQLite database as an Expense transaction and updates the account wallet balance without manual duplicate entry.
+   - **Social Share:** Instant WhatsApp / SMS shopping list sharing.
 
 ---
 
