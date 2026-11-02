@@ -189,34 +189,52 @@ export default function ShoppingListsScreen() {
 
     const willBePurchased = item.is_purchased === 0;
 
-    // If marking purchased and has no actual price, prompt to enter actual price
-    if (willBePurchased && item.actual_amount === 0 && item.estimated_amount > 0) {
-      // Auto-set estimated as actual, but user can edit
-      await ShoppingRepository.toggleItemPurchased(item.id, true, item.estimated_amount);
+    if (willBePurchased) {
+      // Prompt user to verify or change actual market price
+      openPriceEditModal(item);
     } else {
-      await ShoppingRepository.toggleItemPurchased(item.id, willBePurchased);
+      // Direct uncheck
+      await ShoppingRepository.toggleItemPurchased(item.id, false);
+      const detailed = await ShoppingRepository.getById(expandedListId);
+      if (detailed && detailed.items) {
+        setCurrentItems(detailed.items);
+      }
+      triggerRefresh();
+      await loadData();
     }
-
-    const detailed = await ShoppingRepository.getById(expandedListId);
-    if (detailed && detailed.items) {
-      setCurrentItems(detailed.items);
-    }
-    triggerRefresh();
-    await loadData();
   };
 
   const openPriceEditModal = (item: ShoppingItem) => {
     setActiveItemForPrice(item);
-    setEditPriceStr(String(fromPaisa(item.actual_amount || item.estimated_amount || 0)));
+    const initialPaisa = item.actual_amount > 0 ? item.actual_amount : item.estimated_amount;
+    setEditPriceStr(initialPaisa > 0 ? String(fromPaisa(initialPaisa)) : '');
     setPriceModalVisible(true);
   };
 
-  const handleSaveActualPrice = async () => {
+  const handleQuickAdjustPrice = (deltaTaka: number) => {
+    const current = parseFloat(editPriceStr) || 0;
+    const updated = Math.max(0, current + deltaTaka);
+    setEditPriceStr(updated % 1 === 0 ? String(updated) : updated.toFixed(2));
+  };
+
+  const handleSetEstimatedPrice = () => {
+    if (!activeItemForPrice) return;
+    setEditPriceStr(String(fromPaisa(activeItemForPrice.estimated_amount)));
+  };
+
+  const handleSaveActualPrice = async (overridePaisa?: number) => {
     if (!activeItemForPrice || !expandedListId) return;
-    const paisa = toPaisa(editPriceStr);
+
+    let finalPaisa: number;
+    if (overridePaisa !== undefined) {
+      finalPaisa = overridePaisa;
+    } else {
+      const typed = toPaisa(editPriceStr);
+      finalPaisa = typed > 0 ? typed : (activeItemForPrice.estimated_amount || 0);
+    }
 
     await ShoppingRepository.updateItem(activeItemForPrice.id, {
-      actual_amount: paisa,
+      actual_amount: finalPaisa,
       is_purchased: 1, // Auto-mark as purchased when price is confirmed
     });
 
@@ -561,14 +579,80 @@ export default function ShoppingListsScreen() {
                       </View>
                     )}
 
+                    {/* Overall Market Savings / Variance Banner */}
+                    {(() => {
+                      const purchasedItems = currentItems.filter((i) => i.is_purchased === 1);
+                      const totalEstPurchased = purchasedItems.reduce((sum, i) => sum + (i.estimated_amount || 0), 0);
+                      const totalActPurchased = purchasedItems.reduce((sum, i) => sum + (i.actual_amount || 0), 0);
+                      const netMarketSavings = totalEstPurchased - totalActPurchased;
+
+                      if (purchasedItems.length === 0 || totalEstPurchased === 0) return null;
+
+                      const isSaved = netMarketSavings > 0;
+                      const isExtra = netMarketSavings < 0;
+
+                      return (
+                        <View
+                          style={[
+                            styles.marketSummaryCard,
+                            {
+                              backgroundColor: isSaved
+                                ? `${colors.income}15`
+                                : isExtra
+                                ? `${colors.danger}15`
+                                : colors.cardSecondary,
+                              borderColor: isSaved
+                                ? colors.income
+                                : isExtra
+                                ? colors.danger
+                                : colors.borderSubtle,
+                            },
+                          ]}
+                        >
+                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                            <Ionicons
+                              name={isSaved ? 'trending-down-outline' : isExtra ? 'trending-up-outline' : 'checkmark-circle-outline'}
+                              size={20}
+                              color={isSaved ? colors.income : isExtra ? colors.danger : colors.primary}
+                            />
+                            <View style={{ flex: 1 }}>
+                              <Text
+                                style={[
+                                  styles.marketSummaryTitle,
+                                  { color: isSaved ? colors.income : isExtra ? colors.danger : colors.text },
+                                ]}
+                              >
+                                {isSaved
+                                  ? `🎉 ${t('totalMarketSavings')}: ${renderAmount(netMarketSavings)}`
+                                  : isExtra
+                                  ? `⚠️ ${t('totalMarketExtraCost')}: ${renderAmount(Math.abs(netMarketSavings))}`
+                                  : (language === 'bn' ? '✅ বাজার ঠিক আনুমানিক মূল্যে হচ্ছে' : '✅ Shopping at expected price')}
+                              </Text>
+                              <Text style={[styles.marketSummarySub, { color: colors.textSecondary }]}>
+                                {language === 'bn'
+                                  ? `আনুমানিক ছিল: ${renderAmount(totalEstPurchased)} | আসল কেনা দাম: ${renderAmount(totalActPurchased)}`
+                                  : `Est: ${renderAmount(totalEstPurchased)} | Actual: ${renderAmount(totalActPurchased)}`}
+                              </Text>
+                            </View>
+                          </View>
+                        </View>
+                      );
+                    })()}
+
                     {/* Items List */}
                     {currentItems.length === 0 ? (
                       <Text style={[styles.noItemsNotice, { color: colors.textMuted }]}>
-                        ফর্দে এখনো কোনো পণ্য যোগ করা হয়নি। উপরের বক্সে লিখে (+) চাপুন।
+                        {language === 'bn'
+                          ? 'ফর্দে এখনো কোনো পণ্য যোগ করা হয়নি। উপরের বক্সে লিখে (+) চাপুন।'
+                          : 'No items in this list yet. Type above and tap (+) to add.'}
                       </Text>
                     ) : (
                       currentItems.map((item) => {
                         const isPurchased = item.is_purchased === 1;
+                        const diff = item.estimated_amount > 0 && item.actual_amount > 0
+                          ? item.estimated_amount - item.actual_amount
+                          : 0;
+
                         return (
                           <View
                             key={item.id}
@@ -578,6 +662,8 @@ export default function ShoppingListsScreen() {
                                 backgroundColor: isPurchased
                                   ? `${colors.income}10`
                                   : colors.cardSecondary,
+                                borderColor: isPurchased ? `${colors.income}35` : colors.borderSubtle,
+                                borderWidth: 1,
                               },
                             ]}
                           >
@@ -595,59 +681,127 @@ export default function ShoppingListsScreen() {
                               {isPurchased && <Ionicons name="checkmark" size={14} color="#FFFFFF" />}
                             </TouchableOpacity>
 
-                            {/* Item Name & Quantity */}
+                            {/* Item Name & Details */}
                             <View style={{ flex: 1, marginLeft: 10 }}>
-                              <Text
-                                style={[
-                                  styles.itemNameText,
-                                  {
-                                    color: isPurchased ? colors.textMuted : colors.text,
-                                    textDecorationLine: isPurchased ? 'line-through' : 'none',
-                                  },
-                                ]}
-                              >
-                                {item.item_name}
-                              </Text>
-                              {item.quantity ? (
-                                <Text style={[styles.itemQtyText, { color: colors.textMuted }]}>
-                                  {item.quantity}
+                              <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
+                                <Text
+                                  style={[
+                                    styles.itemNameText,
+                                    {
+                                      color: isPurchased ? colors.textMuted : colors.text,
+                                      textDecorationLine: isPurchased ? 'line-through' : 'none',
+                                    },
+                                  ]}
+                                >
+                                  {item.item_name}
                                 </Text>
-                              ) : null}
+                                {item.quantity ? (
+                                  <View style={[styles.qtyBadge, { backgroundColor: colors.background }]}>
+                                    <Text style={[styles.qtyBadgeText, { color: colors.textSecondary }]}>
+                                      {item.quantity}
+                                    </Text>
+                                  </View>
+                                ) : null}
+                              </View>
+
+                              {/* Price and Variance Subline */}
+                              <View style={styles.itemPriceMetaRow}>
+                                {item.estimated_amount > 0 && (
+                                  <Text style={[styles.itemEstText, { color: colors.textMuted }]}>
+                                    {t('estPrice')}: {renderAmount(item.estimated_amount)}
+                                  </Text>
+                                )}
+
+                                {isPurchased && item.actual_amount > 0 && (
+                                  <>
+                                    {item.estimated_amount > 0 && (
+                                      <Text style={[styles.metaDot, { color: colors.textMuted }]}>•</Text>
+                                    )}
+                                    <Text style={[styles.itemActText, { color: colors.income }]}>
+                                      {t('realPrice')}: {renderAmount(item.actual_amount)}
+                                    </Text>
+                                  </>
+                                )}
+
+                                {/* Variance Tag */}
+                                {isPurchased && item.estimated_amount > 0 && item.actual_amount > 0 && (
+                                  <View
+                                    style={[
+                                      styles.varianceBadge,
+                                      {
+                                        backgroundColor:
+                                          diff > 0
+                                            ? `${colors.income}20`
+                                            : diff < 0
+                                            ? `${colors.danger}20`
+                                            : `${colors.textMuted}20`,
+                                      },
+                                    ]}
+                                  >
+                                    <Text
+                                      style={[
+                                        styles.varianceBadgeText,
+                                        {
+                                          color:
+                                            diff > 0
+                                              ? colors.income
+                                              : diff < 0
+                                              ? colors.danger
+                                              : colors.textSecondary,
+                                        },
+                                      ]}
+                                    >
+                                      {diff > 0
+                                        ? `🔻 ${t('savings')} ${renderAmount(diff)}`
+                                        : diff < 0
+                                        ? `🔺 +${renderAmount(Math.abs(diff))}`
+                                        : `⚪ ${t('samePrice')}`}
+                                    </Text>
+                                  </View>
+                                )}
+                              </View>
                             </View>
 
-                            {/* Price (Tap to update actual price) */}
+                            {/* Clickable Price Tag (opens live price edit) */}
                             <TouchableOpacity
                               style={[
                                 styles.priceTag,
                                 {
                                   backgroundColor: isPurchased
-                                    ? `${colors.income}25`
+                                    ? `${colors.income}20`
                                     : colors.background,
+                                  borderColor: isPurchased ? colors.income : colors.border,
                                 },
                               ]}
                               onPress={() => openPriceEditModal(item)}
                             >
+                              <Ionicons
+                                name="pencil"
+                                size={12}
+                                color={isPurchased ? colors.income : colors.textSecondary}
+                                style={{ marginRight: 3 }}
+                              />
                               <Text
                                 style={[
                                   styles.priceTagText,
-                                  { color: isPurchased ? colors.income : colors.textSecondary },
+                                  { color: isPurchased ? colors.income : colors.text },
                                 ]}
                               >
                                 {item.actual_amount > 0
                                   ? renderAmount(item.actual_amount)
                                   : item.estimated_amount > 0
                                   ? `~${renderAmount(item.estimated_amount)}`
-                                  : '৳ দাম লিখুন'}
+                                  : '৳ দর'}
                               </Text>
                             </TouchableOpacity>
 
                             {/* Delete Item */}
                             {list.status === 'active' && (
                               <TouchableOpacity
-                                style={{ marginLeft: 8 }}
+                                style={{ marginLeft: 6, padding: 4 }}
                                 onPress={() => handleDeleteItem(item.id)}
                               >
-                                <Ionicons name="close-circle-outline" size={18} color={colors.textMuted} />
+                                <Ionicons name="trash-outline" size={17} color={colors.textMuted} />
                               </TouchableOpacity>
                             )}
                           </View>
@@ -768,15 +922,53 @@ export default function ShoppingListsScreen() {
 
             <View style={[styles.confirmSpentCard, { backgroundColor: colors.incomeBg }]}>
               <Text style={[styles.confirmSpentLabel, { color: colors.income }]}>
-                মোট বাজার খরচ (Total Spent)
+                {language === 'bn' ? 'মোট বাজার খরচ' : 'Total Spent'}
               </Text>
               <Text style={[styles.confirmSpentAmount, { color: colors.income }]}>
                 {finishingList ? renderAmount(finishingList.total_spent) : '৳0'}
               </Text>
             </View>
 
+            {/* Savings in Finish Modal */}
+            {(() => {
+              if (!finishingList || !currentItems || currentItems.length === 0) return null;
+              const purchasedItems = currentItems.filter((i) => i.is_purchased === 1);
+              const totalEst = purchasedItems.reduce((sum, i) => sum + (i.estimated_amount || 0), 0);
+              const totalAct = purchasedItems.reduce((sum, i) => sum + (i.actual_amount || 0), 0);
+              const netDiff = totalEst - totalAct;
+
+              if (totalEst <= 0 || purchasedItems.length === 0) return null;
+
+              return (
+                <View
+                  style={[
+                    styles.finishSavingsBox,
+                    { backgroundColor: netDiff >= 0 ? `${colors.income}15` : `${colors.danger}15` },
+                  ]}
+                >
+                  <Ionicons
+                    name={netDiff >= 0 ? 'sparkles' : 'alert-circle-outline'}
+                    size={16}
+                    color={netDiff >= 0 ? colors.income : colors.danger}
+                  />
+                  <Text
+                    style={[
+                      styles.finishSavingsText,
+                      { color: netDiff >= 0 ? colors.income : colors.danger },
+                    ]}
+                  >
+                    {netDiff > 0
+                      ? `${t('totalMarketSavings')}: ${renderAmount(netDiff)}!`
+                      : netDiff < 0
+                      ? `${t('totalMarketExtraCost')}: ${renderAmount(Math.abs(netDiff))}`
+                      : (language === 'bn' ? 'আনুমানিক মূল্যে কেনাকাটা সম্পন্ন' : 'Purchased at expected price')}
+                  </Text>
+                </View>
+              );
+            })()}
+
             <Text style={[styles.inputLabel, { color: colors.textSecondary, marginTop: 14 }]}>
-              কোন ওয়ালেট/অ্যাকাউন্ট থেকে টাকা কাটা হবে?
+              {language === 'bn' ? 'কোন ওয়ালেট/অ্যাকাউন্ট থেকে টাকা কাটা হবে?' : 'Deduct expense from account:'}
             </Text>
             <AccountSelector
               accounts={accounts}
@@ -785,7 +977,7 @@ export default function ShoppingListsScreen() {
             />
 
             <Text style={[styles.inputLabel, { color: colors.textSecondary, marginTop: 12 }]}>
-              খরচের ক্যাটাগরি
+              {language === 'bn' ? 'খরচের ক্যাটাগরি' : 'Expense Category'}
             </Text>
             <CategorySelector
               categories={categories}
@@ -806,21 +998,42 @@ export default function ShoppingListsScreen() {
         </View>
       </Modal>
 
-      {/* ==================== MODAL: EDIT ACTUAL PRICE ==================== */}
+      {/* ==================== MODAL: LIVE PRICE VARIANCE & CONFIRMATION ==================== */}
       <Modal visible={priceModalVisible} animationType="slide" transparent>
         <View style={styles.modalOverlay}>
           <View style={[styles.modalBox, { backgroundColor: colors.card }]}>
             <View style={styles.modalHeader}>
-              <Text style={[styles.modalTitle, { color: colors.text }]}>
-                {activeItemForPrice?.item_name} - {t('actualPrice')}
-              </Text>
+              <View style={{ flex: 1, marginRight: 8 }}>
+                <Text style={[styles.modalTitle, { color: colors.text }]}>
+                  {activeItemForPrice?.item_name} {activeItemForPrice?.quantity ? `(${activeItemForPrice.quantity})` : ''}
+                </Text>
+                <Text style={[styles.modalSubtitle, { color: colors.textSecondary }]}>
+                  {t('confirmMarketPrice')}
+                </Text>
+              </View>
               <TouchableOpacity onPress={() => setPriceModalVisible(false)}>
                 <Ionicons name="close" size={24} color={colors.textSecondary} />
               </TouchableOpacity>
             </View>
 
-            <Text style={[styles.inputLabel, { color: colors.textSecondary }]}>
-              আসল কেনা দাম লিখুন (টাকা)
+            {/* Estimated Reference Card */}
+            {activeItemForPrice && activeItemForPrice.estimated_amount > 0 && (
+              <View style={[styles.estRefCard, { backgroundColor: colors.cardSecondary }]}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <Ionicons name="pricetag-outline" size={16} color={colors.primary} />
+                  <Text style={[styles.estRefLabel, { color: colors.textSecondary }]}>
+                    {t('estimatedPrice')}:
+                  </Text>
+                  <Text style={[styles.estRefAmount, { color: colors.primary }]}>
+                    {renderAmount(activeItemForPrice.estimated_amount)}
+                  </Text>
+                </View>
+              </View>
+            )}
+
+            {/* Actual Input */}
+            <Text style={[styles.inputLabel, { color: colors.textSecondary, marginTop: 10 }]}>
+              {t('realPrice')} ({baseCurrency})
             </Text>
             <AmountInput
               value={editPriceStr}
@@ -828,13 +1041,164 @@ export default function ShoppingListsScreen() {
               currency={baseCurrency}
             />
 
+            {/* Live Variance Calculation Banner */}
+            {(() => {
+              if (!activeItemForPrice || activeItemForPrice.estimated_amount <= 0) return null;
+              const currentPaisa = toPaisa(editPriceStr);
+              if (currentPaisa <= 0) return null;
+              const estPaisa = activeItemForPrice.estimated_amount;
+              const diffPaisa = estPaisa - currentPaisa;
+
+              return (
+                <View
+                  style={[
+                    styles.modalVarianceCard,
+                    {
+                      backgroundColor:
+                        diffPaisa > 0
+                          ? `${colors.income}20`
+                          : diffPaisa < 0
+                          ? `${colors.danger}20`
+                          : colors.cardSecondary,
+                      borderColor:
+                        diffPaisa > 0
+                          ? colors.income
+                          : diffPaisa < 0
+                          ? colors.danger
+                          : colors.borderSubtle,
+                    },
+                  ]}
+                >
+                  <Ionicons
+                    name={
+                      diffPaisa > 0
+                        ? 'arrow-down-circle'
+                        : diffPaisa < 0
+                        ? 'arrow-up-circle'
+                        : 'checkmark-circle'
+                    }
+                    size={18}
+                    color={
+                      diffPaisa > 0
+                        ? colors.income
+                        : diffPaisa < 0
+                        ? colors.danger
+                        : colors.primary
+                    }
+                  />
+                  <Text
+                    style={[
+                      styles.modalVarianceText,
+                      {
+                        color:
+                          diffPaisa > 0
+                            ? colors.income
+                            : diffPaisa < 0
+                            ? colors.danger
+                            : colors.text,
+                      },
+                    ]}
+                  >
+                    {diffPaisa > 0
+                      ? `🎉 ${t('savings')}: ${renderAmount(diffPaisa)}!`
+                      : diffPaisa < 0
+                      ? `⚠️ ${t('extraCost')}: ${renderAmount(Math.abs(diffPaisa))}`
+                      : (language === 'bn' ? '✅ ঠিক আনুমানিক দামেই কেনা হলো' : '✅ Purchased at expected price')}
+                  </Text>
+                </View>
+              );
+            })()}
+
+            {/* Quick Adjustment Chips */}
+            <Text style={[styles.quickAdjustLabel, { color: colors.textMuted }]}>
+              {t('quickAdjust')}:
+            </Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipsScroll}>
+              {activeItemForPrice && activeItemForPrice.estimated_amount > 0 && (
+                <TouchableOpacity
+                  style={[styles.chip, { backgroundColor: colors.cardSecondary, borderColor: colors.primary }]}
+                  onPress={handleSetEstimatedPrice}
+                >
+                  <Text style={[styles.chipText, { color: colors.primary }]}>
+                    = ৳{fromPaisa(activeItemForPrice.estimated_amount)}
+                  </Text>
+                </TouchableOpacity>
+              )}
+
+              <TouchableOpacity
+                style={[styles.chip, { backgroundColor: `${colors.income}15`, borderColor: colors.income }]}
+                onPress={() => handleQuickAdjustPrice(-1)}
+              >
+                <Text style={[styles.chipText, { color: colors.income }]}>-১</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.chip, { backgroundColor: `${colors.income}15`, borderColor: colors.income }]}
+                onPress={() => handleQuickAdjustPrice(-2)}
+              >
+                <Text style={[styles.chipText, { color: colors.income }]}>-২</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.chip, { backgroundColor: `${colors.income}15`, borderColor: colors.income }]}
+                onPress={() => handleQuickAdjustPrice(-5)}
+              >
+                <Text style={[styles.chipText, { color: colors.income }]}>-৫</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.chip, { backgroundColor: `${colors.income}15`, borderColor: colors.income }]}
+                onPress={() => handleQuickAdjustPrice(-10)}
+              >
+                <Text style={[styles.chipText, { color: colors.income }]}>-১০</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.chip, { backgroundColor: `${colors.danger}15`, borderColor: colors.danger }]}
+                onPress={() => handleQuickAdjustPrice(2)}
+              >
+                <Text style={[styles.chipText, { color: colors.danger }]}>+২</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.chip, { backgroundColor: `${colors.danger}15`, borderColor: colors.danger }]}
+                onPress={() => handleQuickAdjustPrice(5)}
+              >
+                <Text style={[styles.chipText, { color: colors.danger }]}>+৫</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.chip, { backgroundColor: `${colors.danger}15`, borderColor: colors.danger }]}
+                onPress={() => handleQuickAdjustPrice(10)}
+              >
+                <Text style={[styles.chipText, { color: colors.danger }]}>+১০</Text>
+              </TouchableOpacity>
+            </ScrollView>
+
+            {/* Confirm Purchase Button */}
             <TouchableOpacity
-              style={[styles.modalSaveBtn, { backgroundColor: colors.primary, marginTop: 18 }]}
-              onPress={handleSaveActualPrice}
+              style={[styles.modalSaveBtn, { backgroundColor: colors.income, marginTop: 16 }]}
+              onPress={() => handleSaveActualPrice()}
               activeOpacity={0.8}
             >
-              <Text style={styles.modalSaveText}>{t('confirm')}</Text>
+              <Ionicons name="checkmark-circle-outline" size={20} color="#FFFFFF" style={{ marginRight: 6 }} />
+              <Text style={styles.modalSaveText}>
+                {t('confirmPurchase')} ({renderAmount(toPaisa(editPriceStr) || activeItemForPrice?.estimated_amount || 0)})
+              </Text>
             </TouchableOpacity>
+
+            {/* 1-Tap Keep Estimated Price Shortcut */}
+            {activeItemForPrice && activeItemForPrice.estimated_amount > 0 && (
+              <TouchableOpacity
+                style={[styles.modalSecondaryBtn, { borderColor: colors.border }]}
+                onPress={() => handleSaveActualPrice(activeItemForPrice.estimated_amount)}
+                activeOpacity={0.7}
+              >
+                <Text style={[styles.modalSecondaryText, { color: colors.textSecondary }]}>
+                  {t('keepEstimated')} ({renderAmount(activeItemForPrice.estimated_amount)})
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
         </View>
       </Modal>
@@ -1115,6 +1479,7 @@ const styles = StyleSheet.create({
   modalSaveBtn: {
     height: 50,
     borderRadius: 16,
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 10,
@@ -1124,4 +1489,126 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '700',
   },
+  modalSecondaryBtn: {
+    height: 44,
+    borderRadius: 14,
+    borderWidth: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  modalSecondaryText: {
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  marketSummaryCard: {
+    padding: 12,
+    borderRadius: 14,
+    borderWidth: 1,
+    marginBottom: 12,
+  },
+  marketSummaryTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  marketSummarySub: {
+    fontSize: 11,
+    marginTop: 2,
+  },
+  qtyBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: 6,
+  },
+  qtyBadgeText: {
+    fontSize: 10,
+    fontWeight: '600',
+  },
+  itemPriceMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: 5,
+    marginTop: 3,
+  },
+  itemEstText: {
+    fontSize: 11,
+  },
+  itemActText: {
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  varianceBadge: {
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: 6,
+  },
+  varianceBadgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  modalSubtitle: {
+    fontSize: 12,
+    marginTop: 2,
+  },
+  estRefCard: {
+    padding: 10,
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  estRefLabel: {
+    fontSize: 12,
+  },
+  estRefAmount: {
+    fontSize: 13,
+    fontWeight: '700',
+  },
+  modalVarianceCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    padding: 10,
+    borderRadius: 10,
+    marginTop: 10,
+    borderWidth: 1,
+  },
+  modalVarianceText: {
+    fontSize: 12,
+    fontWeight: '700',
+    flex: 1,
+  },
+  quickAdjustLabel: {
+    fontSize: 11,
+    fontWeight: '600',
+    marginTop: 12,
+    marginBottom: 6,
+  },
+  chipsScroll: {
+    gap: 8,
+    paddingBottom: 4,
+  },
+  chip: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 10,
+    borderWidth: 1,
+  },
+  chipText: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  finishSavingsBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    padding: 8,
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  finishSavingsText: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
 });
+

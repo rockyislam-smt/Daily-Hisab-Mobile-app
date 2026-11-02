@@ -74,11 +74,19 @@ PocketFlow is a production-grade, 100% offline-first personal finance management
    - **Quick Actions:** Direct Call (📞) and pre-filled Bengali SMS Tagada (✉️) buttons to follow up with debtors in seconds.
    - **Repayment History Ledger:** Modal displaying past installment dates, accounts, and partial payment amounts.
    - **Due Date Presets:** Quick `+7 দিন`, `+15 দিন`, `+1 মাস`, `+2 মাস` date selection buttons.
-6. **Smart Shopping List with Budget (স্মার্ট বাজার ফর্দ ও শপিং লিস্ট)**:
-   - **Dedicated Manager Screen (`src/app/shopping-lists.tsx`):** Active & Completed shopping lists.
-   - **Budget Tracking & Progress Bar:** Real-time visual comparison of allocated budget vs actual spent so far with over-budget warning.
-   - **Interactive Item Checklist:** Fast inline item adding with unit/quantity, estimated price, and actual price updating upon purchase.
-   - **1-Tap Auto-Expense Conversion:** Prominent "Finish Shopping & Save to Expenses" button that records the total spent into the SQLite database as an Expense transaction and updates the account wallet balance without manual duplicate entry.
+6. **Smart Shopping List with Live Market Price Variance (স্মার্ট বাজার ফর্দ ও লাইভ বাজার দর সমন্বয়)**:
+   - **Dedicated Manager Screen (`src/app/shopping-lists.tsx`):** Active & Completed shopping lists with budget progress bar.
+   - **Live Market Price Variance Modal:** 
+     - When tapping any item checkbox `[ ] -> [✓]`, an ultra-fast bottom sheet modal pops up to confirm or adjust the real purchase price compared to the estimated price.
+     - Fast 1-tap quick delta chips: `[ = আনুমানিক ৳... ]`, `[ -১ ]`, `[ -২ ]`, `[ -৫ ]`, `[ -১০ ]`, `[ +২ ]`, `[ +৫ ]`, `[ +১০ ]`.
+     - Live variance feedback banner inside the modal: 🟢 `🎉 ৳... সাশ্রয়!` or 🔴 `⚠️ ৳... অতিরিক্ত খরচ`.
+     - 1-tap shortcut button: `[ আনুমানিক মূল্যে রাখুন ]` or `[ কেনা নিশ্চিত করুন ]`.
+   - **Item-Level Visual Variance Badges:** Displays both estimated (`আনুমানিক: ৳৯০`) and actual market price (`আসল: ৳৮৮`) with dynamic indicator tags:
+     - 🟢 `🔻 সাশ্রয় ৳২` (when market price drops, e.g. ৳90 -> ৳88)
+     - 🔴 `🔺 +৳৫` (when market price surges, e.g. ৳50 -> ৳55)
+     - ⚪ `একই দাম` (when market price matches estimate, e.g. ৳22 -> ৳22)
+   - **Overall List Market Savings Summary Banner:** Dynamically computes total savings across all purchased items (e.g. `🎉 বাজারে মোট সাশ্রয়: ৳১৫!`) or warns if total market purchases exceeded expected estimates.
+   - **1-Tap Auto-Expense Conversion:** Automatically converts the list total into an SQLite Expense transaction linked to the selected account wallet, recording items in transaction notes.
    - **Social Share:** Instant WhatsApp / SMS shopping list sharing.
 
 ---
@@ -107,11 +115,12 @@ PocketFlow is a production-grade, 100% offline-first personal finance management
 ## 🧪 6. Testing & Quality Verification
 
 All automated tests and type checks pass with zero errors:
-- **Unit Tests:** `npm test` runs 4 test suites and 20 tests (100% passing):
+- **Unit Tests:** `npm test` runs 5 test suites and 26 tests (100% passing):
   - `__tests__/money.test.ts` (Minor-unit math, formatting, currency conversion)
   - `__tests__/financial-rules.test.ts` (Closing balance formula, internal transfer integrity)
   - `__tests__/crypto-backup.test.ts` (AES encryption/decryption, checksum validation)
   - `__tests__/security-localization.test.ts` (PIN hashing, translation completeness)
+  - `__tests__/shopping-price-variance.test.ts` (Live price adjustment, item & list market variance, savings tracking)
 - **TypeScript:** `npx tsc --noEmit` passes with 0 errors.
 
 ---

@@ -161,6 +161,32 @@ If you or another developer / AI assistant open this repository in the future, r
 
 ---
 
+### Phase 11: Live Market Price Variance & Real-Time Savings Tracking (লাইভ বাজার দর ও সাশ্রয় ট্র্যাকিং)
+- **User Request:** "ami bazar list ar je dam age thekei likhbo seta too kom besi hote pare bazar a giye dekha jacche ami chal ar dam liklam 22 tk bazar giye dekha gelo seta 22 tk -- abar tel dhoro 90 tk bazar giye dekha gelo 88tk -- so ai rokm live price change ar o option rakha jete pare"
+- **Delivered Architecture & Features:**
+  1. **Fast 1-Tap Live Price Confirmation Modal:**
+     - When tapping any item checkbox `[ ]`, a quick price confirmation bottom sheet opens immediately.
+     - Pre-fills with the estimated price (e.g., ৳90).
+     - 1-tap quick delta adjustment chips: `[ = আনুমানিক ৳... ]`, `[ -১ ]`, `[ -২ ]`, `[ -৫ ]`, `[ -১০ ]`, `[ +২ ]`, `[ +৫ ]`, `[ +১০ ]`.
+     - Live variance feedback banner inside the modal:
+       - 🟢 `🎉 সাশ্রয়: ৳২!` (e.g. ৳90 -> ৳88)
+       - 🔴 `⚠️ অতিরিক্ত খরচ: ৳৫` (e.g. ৳50 -> ৳55)
+       - ⚪ `✅ ঠিক আনুমানিক দামেই কেনা হলো` (e.g. ৳22 -> ৳22)
+     - Fast shortcuts: `[ কেনা নিশ্চিত করুন ]` or `[ আনুমানিক মূল্যে রাখুন ]` for 1-tap purchases.
+  2. **Item-Level Real-Time Variance Tags:**
+     - Displays estimated price (`আনুমানিক: ৳৯০`) and actual market price (`আসল: ৳৮৮`).
+     - Real-time indicator pill: `🔻 সাশ্রয় ৳২` (Green), `🔺 +৳৫` (Red), or `⚪ একই দাম`.
+     - Clickable `[ ✏️ ৳৮৮ ]` price badge to adjust prices anytime.
+  3. **Overall List Market Savings Summary Banner:**
+     - Dynamically calculates the difference between total estimated and total actual spent on all purchased items:
+     - Celebratory banner: `🎉 বাজারে মোট সাশ্রয়: ৳...` (Green) or `⚠️ বাজারে অতিরিক্ত খরচ: ৳...` (Red).
+  4. **Finish Shopping Integration:**
+     - Displays net market savings alongside total spent before converting to an account expense.
+  5. **Automated Testing:**
+     - Created `__tests__/shopping-price-variance.test.ts` verifying paisa conversions, price variance, net list savings, and localization keys (5 test suites, 26/26 tests passing).
+
+---
+
 ## 📂 Key File Locations
 
 | File Path | Description |
