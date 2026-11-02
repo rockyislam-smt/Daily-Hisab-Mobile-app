@@ -187,6 +187,17 @@ If you or another developer / AI assistant open this repository in the future, r
 
 ---
 
+### Phase 12: Standalone Android APK Build v1.0.2 (স্মার্ট বাজার ফর্দ সহ নতুন বিল্ড)
+- **User Request:** "অপশন ১: সরাসরি নিজের বা বন্ধুর ফোনে ইনস্টল করার জন্য (Standalone APK Build) — [সুপারিশকৃত] -- kore dao and apk file ta amke dao phone a use korar jonno"
+- **Delivered Actions:**
+  1. Incremented app version to `1.0.2` and Android `versionCode: 2` in `app.json`.
+  2. Triggered EAS Cloud Build for Android Preview Profile (`buildType: apk`).
+  3. Successfully compiled standalone release APK on EAS Cloud (Build ID: `44199912-5219-4347-a6c5-4492cf02bafd`).
+  4. Downloaded full `.apk` file (117 MB) directly into the local workspace: `D:\Antigravity\Daily-hisab\PocketFlow-v1.0.2.apk`.
+  5. Provided direct cloud download link and offline installation instructions.
+
+---
+
 ## 📂 Key File Locations
 
 | File Path | Description |
@@ -201,7 +212,7 @@ If you or another developer / AI assistant open this repository in the future, r
 | `src/services/notification.service.ts` | Offline notifications, daily reminders, and high-priority alarms |
 | `src/localization/bn.ts` & `en.ts` | Bengali & English full translation dictionaries |
 | `PROJECT_STATE.md` | Architectural handover state & quick commands |
-| `PocketFlow-v1.0.1.apk` | Downloaded standalone production APK (117 MB) |
+| `PocketFlow-v1.0.2.apk` | Downloaded standalone production APK (117 MB) |
 
 ---
 

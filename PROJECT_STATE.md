@@ -1,8 +1,8 @@
 # 📊 PocketFlow (পকেটফ্লো) — Project Handover & State Documentation
-**Last Updated:** October 30, 2026  
+**Last Updated:** November 2, 2026  
 **Developer & Architect:** Md Rocky Islam  
 **Repository Location:** `D:\Antigravity\Daily-hisab`  
-**Current Version:** `v1.0.1` (Production Build Complete)
+**Current Version:** `v1.0.2` (Production Standalone APK Built)
 
 ---
 
@@ -94,10 +94,11 @@ PocketFlow is a production-grade, 100% offline-first personal finance management
 ## 🚀 4. Build & Release Artifacts
 
 - **EAS Project:** `@mdrockyislam/pocketflow` (ID: `1c43ddf4-8ce9-4f3d-bd3a-749ecc5d1e9a`)
-- **Latest Production APK:** `PocketFlow-v1.0.1.apk` (117 MB)
-  - **Local Location:** `D:\Antigravity\Daily-hisab\PocketFlow-v1.0.1.apk`
-  - **Cloud Download Link:** [Download PocketFlow v1.0.1 APK](https://expo.dev/artifacts/eas/FVSP0a5QnOy4O2gL_EAs4OUUWsJoEvnoxgQnX1vquxQ.apk)
-  - **Build ID:** `2e8889d5-7030-46bb-9a1e-0ce0a4243223`
+- **Latest Production APK:** `PocketFlow-v1.0.2.apk` (117 MB)
+  - **Local Location:** `D:\Antigravity\Daily-hisab\PocketFlow-v1.0.2.apk`
+  - **Direct Cloud Download Link:** [Download PocketFlow v1.0.2 APK](https://expo.dev/artifacts/eas/OLbGp6slGrDiM6jOCgCBRGyuTPJZWsfMjX_6EPU0VyM.apk)
+  - **Build ID:** `44199912-5219-4347-a6c5-4492cf02bafd`
+  - **EAS Logs:** [EAS Build Details](https://expo.dev/accounts/mdrockyislam/projects/pocketflow/builds/44199912-5219-4347-a6c5-4492cf02bafd)
 
 ---
 
