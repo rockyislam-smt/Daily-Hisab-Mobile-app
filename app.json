@@ -2,7 +2,7 @@
   "expo": {
     "name": "PocketFlow",
     "slug": "pocketflow",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "pocketflow",
@@ -23,7 +23,7 @@
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
       "package": "com.pocketflow.finance",
-      "versionCode": 1,
+      "versionCode": 2,
       "predictiveBackGestureEnabled": false,
       "permissions": [
         "USE_BIOMETRIC",
